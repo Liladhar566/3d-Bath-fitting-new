@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+/* =========================================================
+   Design Tokens — CSS Custom Properties
+   ========================================================= */
+:root {
+  --color-ivory: #F7F5F1;
+  --color-charcoal: #1A1918;
+  --color-charcoal-soft: #2E2C2A;
+  --color-metal: #8C8985;
+  --color-bronze: #A47551;
+  --color-line: #DDD9D2;
+
+  --font-serif: 'Fraunces', serif;
+  --font-sans: 'Inter', sans-serif;
+}
+
+/* =========================================================
+   Tailwind v4 Theme Extension
+   Maps CSS variables into Tailwind utility classes
+   e.g. bg-ivory, text-charcoal, font-serif, etc.
+   ========================================================= */
+@theme {
+  --color-ivory: var(--color-ivory);
+  --color-charcoal: var(--color-charcoal);
+  --color-charcoal-soft: var(--color-charcoal-soft);
+  --color-metal: var(--color-metal);
+  --color-bronze: var(--color-bronze);
+  --color-line: var(--color-line);
+
+  --font-serif: var(--font-serif);
+  --font-sans: var(--font-sans);
+}
+
+/* =========================================================
+   Base Styles
+   ========================================================= */
+body {
+  background-color: var(--color-ivory);
+  color: var(--color-charcoal);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   Fluid Typography Utility Classes
+   ========================================================= */
+
+/* Heading 1 — serif, fluid 2.25rem → 4.5rem */
+.type-h1 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(2.25rem, 5vw, 4.5rem);
+  line-height: 1.08;
+}
+
+/* Heading 2 — serif, fluid 1.75rem → 3rem */
+.type-h2 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(1.75rem, 3.5vw, 3rem);
+  line-height: 1.15;
+}
+
+/* Body text — sans, fluid 1rem → 1.125rem */
+.type-body {
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.2vw, 1.125rem);
+  line-height: 1.6;
+}
+
+/* Eyebrow label — sans, uppercase, tracked */
+.type-eyebrow {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
