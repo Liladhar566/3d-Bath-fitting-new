@@ -50,7 +50,7 @@ bath-fittings-site/
 │   │   ├── ProductCard.tsx   # Product card: image, category, name, price, hover effects
 │   │   └── ProductGrid.tsx   # Responsive grid of ProductCards (1→2→3 cols)
 │   ├── pages/
-│   │   ├── Home.tsx           # 100vh ThreeDViewer section + h1
+│   │   ├── Home.tsx           # Full homepage: Hero (3D + staggered text), Brand Intro, Categories, Featured Products
 │   │   ├── Products.tsx       # Placeholder h1
 │   │   ├── ProductDetails.tsx # Placeholder h1 (route param: :productId)
 │   │   ├── About.tsx          # Placeholder h1

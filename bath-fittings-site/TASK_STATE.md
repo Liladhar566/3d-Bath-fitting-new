@@ -1,10 +1,10 @@
 # Current Objective
 
-Build the product data layer and reusable product display components.
+Build the Home page with Stitch design reference and existing components.
 
 # Current Task
 
-Create product/category data files, a product service layer, and ProductCard + ProductGrid components.
+Implement `src/pages/Home.tsx` composing Hero with 3D viewer, scroll transitions, brand intro statement, category grid, and featured products.
 
 # Status
 
@@ -12,34 +12,26 @@ Create product/category data files, a product service layer, and ProductCard + P
 
 # Completed
 
-- [x] Created `src/data/products.ts` with `Product` interface and 9 seed products
-- [x] 5 categories covered: Faucets (2), Basin Mixers (2), Showers (2), Bath Fittings (1), Accessories (2)
-- [x] 5 products marked `featured: true`
-- [x] 3 products have `specifications` arrays (2–3 entries each)
-- [x] Realistic premium names, descriptions, INR prices (₹2,999–₹12,999)
-- [x] Created `src/data/categories.ts` with 6 entries (All + 5 real categories)
-- [x] Created `src/services/productService.ts` with 4 pure functions
-- [x] Created `src/components/ProductCard.tsx` with image 4:5, eyebrow, name, price, hover effects
-- [x] Created `src/components/ProductGrid.tsx` with responsive grid + empty state
-- [x] Verified `tsc --noEmit` passes
-- [x] Verified `vite build` succeeds
-- [x] Updated PROJECT_CONTEXT.md
-
-# In Progress
-
-Nothing — product data layer task is complete.
+- [x] Step 1: Used Stitch MCP tool (`create_project` + `generate_screen_from_text`) to generate the architectural homepage design ("Vault Architectural Homepage", screen ID `ed5778d556b949d19fa5cccd3b1398c7`).
+- [x] Step 2: Implemented `src/pages/Home.tsx` adhering to layout proportions, spacing, and strict component composition rules:
+  - **Section 1: Hero** (100vh desktop, 90vh mobile) with two-column layout (left: text content, right: `<ThreeDViewer />`; mobile stacks vertically with ~50vh viewer). Staggered Framer Motion entrance (`staggerChildren: 0.15`, fade + translateY 16px→0) for eyebrow, H1 (`type-h1`), brand sentence, and Button group (`Explore Collection` → `/products`, `Enquire Now` → `/contact`).
+  - **Section 2: Hero Scroll Transition** — Scoped `useScroll` with `useTransform` + `useSpring` fading text opacity (1→0) and scaling 3D container (1→0.92) across the hero scroll range.
+  - **Section 3: Brand Introduction** — Centered statement "Precision in every detail." with supporting paragraph and `whileInView` reveal (fade + translateY 20px→0, `once: true`).
+  - **Section 4: Category Grid** — `<SectionHeading heading="Our Collections" />` + 6 responsive category cards (Faucets, Basin Mixers, Showers, Bath Fittings, Accessories, Bathroom Collections) with aspect 4:3 image, category title, and sliding `ArrowUpRight` icon with hover lift (-6px) and image scale (1.03).
+  - **Section 5: Featured Products** — `<SectionHeading heading="Featured Products" />` + `<ProductGrid products={getFeaturedProducts()} />` + centered `<Button variant="secondary">View All Products</Button>`.
+  - **General** — Section padding using fluid `clamp(64px, 10vw, 120px)`. Existing component internals were untouched.
+- [x] Verified `tsc --noEmit` passes with 0 errors.
+- [x] Verified `vite build` succeeds cleanly.
+- [x] Updated PROJECT_CONTEXT.md and TASK_STATE.md.
 
 # Remaining
 
-Potential next steps:
-
-- [ ] Build out Home page hero section with real content + featured products section
 - [ ] Build Products page using ProductGrid + category filtering
 - [ ] Build ProductDetails page with product info + specifications
 - [ ] Add page transition animations in PageTransition.tsx
 - [ ] Replace torus knot placeholder with real 3D hero content
 - [ ] Implement About and Contact page content
-- [ ] Add real product images
+- [ ] Add real product and category images
 
 # Current Problems / Errors
 
@@ -49,50 +41,24 @@ Potential next steps:
 
 | When | What |
 |---|---|
-| 2026-09-27 ~09:47 | Created `src/data/products.ts` — Product interface + 9 seed products |
-| 2026-09-27 ~09:47 | Created `src/data/categories.ts` — 6 category entries |
-| 2026-09-27 ~09:48 | Created `src/services/productService.ts` — 4 pure service functions |
-| 2026-09-27 ~09:49 | Created `src/components/ProductCard.tsx` and `ProductGrid.tsx` |
-| 2026-09-27 ~09:50 | Verified tsc + vite build pass, updated PROJECT_CONTEXT.md |
+| 2026-09-27 ~12:30 | Generated Stitch architectural homepage design (Vault Architectural Homepage) |
+| 2026-09-27 ~12:32 | Implemented full `src/pages/Home.tsx` composing existing components |
+| 2026-09-27 ~12:34 | Verified tsc and production build passed cleanly |
 
 # Files Being Worked On
 
 | File | Role |
 |---|---|
-| `src/data/products.ts` | Product interface + seed data |
-| `src/data/categories.ts` | Category definitions |
-| `src/services/productService.ts` | Data access functions |
-| `src/components/ProductCard.tsx` | Individual product card with hover effects |
-| `src/components/ProductGrid.tsx` | Responsive grid wrapper |
-
-# Decisions Made During Current Task
-
-1. **Static data** — products and categories are plain TypeScript arrays, no backend needed yet. Service functions are pure and operate on the imported array.
-2. **Case-insensitive category matching** — `getProductsByCategory` lowercases both sides for resilience.
-3. **Placeholder image paths** — `/products/placeholder-N.jpg` will 404 until real images are added. The `ProductCard` has a subtle `bg-charcoal-soft/5` fallback on the image container.
-4. **Hover effects respect `@media(hover:hover)`** — Tailwind's `hover:` modifier in modern browsers only applies on devices that support hover (not touch). No separate media query wrapper needed.
-5. **Card lift uses `-translate-y-1.5`** (~6px) and image scale `1.03` — subtle, premium feel.
-6. **Product slugs** are URL-friendly (kebab-case) and used as the primary route param for ProductDetails.
-7. **ProductGrid** handles the empty-state directly with a "No products found" message in metal-colored text.
-
-# What To Do Next
-
-1. **Build Home page** — hero content overlay on 3D viewer + featured products section using `getFeaturedProducts()` + ProductGrid.
-2. **Build Products page** — category tabs/filter using `categories` + `getProductsByCategory()` + ProductGrid.
-3. **Build ProductDetails page** — use `useParams()` + `getProductBySlug()` to display full product info.
-4. **Add page transitions** — wire framer-motion into PageTransition.tsx.
+| `src/pages/Home.tsx` | Homepage composing Hero, Brand Intro, Category Grid, and Featured Products |
 
 # Verification
 
 | Check | Result |
 |---|---|
 | `tsc --noEmit` | ✅ Pass (zero errors) |
-| `vite build` | ✅ Pass (CSS 16.73 kB, JS 1320 kB) |
-| Dev server | Running (`npm run dev` active) |
-| ProductCard rendering | Not yet consumed by any page — needs visual check after wiring |
-| ProductGrid empty state | Not yet tested visually |
-| Service functions | Not unit-tested (pure functions, straightforward) |
+| `vite build` | ✅ Pass (CSS 19.40 kB, JS 1329.99 kB) |
+| Dev server | Running |
 
 # Last Updated
 
-2026-09-27T09:51:00+05:30
+2026-09-27T12:35:00+05:30
