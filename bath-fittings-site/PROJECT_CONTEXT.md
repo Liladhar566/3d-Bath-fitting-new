@@ -40,7 +40,7 @@ bath-fittings-site/
 │   ├── index.css              # Design system: tokens, @theme, body defaults, fluid type scale
 │   ├── components/
 │   │   ├── Layout.tsx         # Persistent layout: Navbar + PageTransition(Outlet) + Footer
-│   │   ├── Navbar.tsx         # Empty shell — needs implementation
+│   │   ├── Navbar.tsx         # Fixed navbar: scroll-driven bg/blur/height, mobile overlay
 │   │   ├── Footer.tsx         # Empty shell — needs implementation
 │   │   ├── PageTransition.tsx # Pass-through wrapper (no animation yet)
 │   │   ├── ThreeDViewer.tsx   # R3F Canvas owner (camera, lights, Suspense, reduced-motion)
@@ -87,7 +87,8 @@ ThreeDViewer.tsx (Canvas owner)
 | Feature | Status | Notes |
 |---|---|---|
 | React Router navigation | ✅ Wired | 5 routes, all rendering placeholder h1 elements |
-| Layout with Navbar/Footer | ✅ Wired | Shell components render empty semantic elements |
+| Layout with Navbar/Footer | ✅ Wired | Navbar fully implemented, Footer still empty shell |
+| Navbar | ✅ Implemented | Scroll-driven bg/blur/height, NavLink active states, mobile overlay |
 | 3D Canvas integration | ✅ Wired | R3F Canvas with camera, lights, DPR, Suspense |
 | Rotating torus knot | ✅ Working | Placeholder 3D content with reduced-motion support |
 | Design system | ✅ Implemented | Colors, fonts, fluid type scale, body defaults |
@@ -96,7 +97,6 @@ ThreeDViewer.tsx (Canvas owner)
 | Page transitions | ⬜ Stub only | PageTransition is pass-through, no animation yet |
 | Product data / catalog | ⬜ Not started | data/ directory is empty |
 | Contact form | ⬜ Not started | — |
-| Navbar links | ⬜ Not started | Navbar renders empty `<nav>` |
 
 # Data / Backend
 
