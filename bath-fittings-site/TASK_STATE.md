@@ -1,10 +1,10 @@
 # Current Objective
 
-Build the Home page with Stitch design reference and existing components.
+Extract central site configuration and refactor hardcoded brand/contact strings.
 
 # Current Task
 
-Implement `src/pages/Home.tsx` composing Hero with 3D viewer, scroll transitions, brand intro statement, category grid, and featured products.
+Create `src/config/site.ts` with `siteConfig` and refactor `Navbar.tsx`, `Footer.tsx`, and `Home.tsx` to consume it.
 
 # Status
 
@@ -12,17 +12,15 @@ Implement `src/pages/Home.tsx` composing Hero with 3D viewer, scroll transitions
 
 # Completed
 
-- [x] Step 1: Used Stitch MCP tool (`create_project` + `generate_screen_from_text`) to generate the architectural homepage design ("Vault Architectural Homepage", screen ID `ed5778d556b949d19fa5cccd3b1398c7`).
-- [x] Step 2: Implemented `src/pages/Home.tsx` adhering to layout proportions, spacing, and strict component composition rules:
-  - **Section 1: Hero** (100vh desktop, 90vh mobile) with two-column layout (left: text content, right: `<ThreeDViewer />`; mobile stacks vertically with ~50vh viewer). Staggered Framer Motion entrance (`staggerChildren: 0.15`, fade + translateY 16px→0) for eyebrow, H1 (`type-h1`), brand sentence, and Button group (`Explore Collection` → `/products`, `Enquire Now` → `/contact`).
-  - **Section 2: Hero Scroll Transition** — Scoped `useScroll` with `useTransform` + `useSpring` fading text opacity (1→0) and scaling 3D container (1→0.92) across the hero scroll range.
-  - **Section 3: Brand Introduction** — Centered statement "Precision in every detail." with supporting paragraph and `whileInView` reveal (fade + translateY 20px→0, `once: true`).
-  - **Section 4: Category Grid** — `<SectionHeading heading="Our Collections" />` + 6 responsive category cards (Faucets, Basin Mixers, Showers, Bath Fittings, Accessories, Bathroom Collections) with aspect 4:3 image, category title, and sliding `ArrowUpRight` icon with hover lift (-6px) and image scale (1.03).
-  - **Section 5: Featured Products** — `<SectionHeading heading="Featured Products" />` + `<ProductGrid products={getFeaturedProducts()} />` + centered `<Button variant="secondary">View All Products</Button>`.
-  - **General** — Section padding using fluid `clamp(64px, 10vw, 120px)`. Existing component internals were untouched.
-- [x] Verified `tsc --noEmit` passes with 0 errors.
-- [x] Verified `vite build` succeeds cleanly.
-- [x] Updated PROJECT_CONTEXT.md and TASK_STATE.md.
+- [x] Created `src/config/site.ts` exporting `siteConfig` (brandName, logoText, tagline, hero, contact, social).
+- [x] Configured path alias `@/config` in `vite.config.ts` and `tsconfig.app.json`.
+- [x] Refactored `src/components/Navbar.tsx` to render `siteConfig.logoText` for the logo link.
+- [x] Refactored `src/components/Footer.tsx` to use `siteConfig.brandName`, `siteConfig.tagline`, `siteConfig.contact.email`, `siteConfig.contact.phone`, `siteConfig.contact.address`, and dynamic copyright.
+- [x] Refactored `src/pages/Home.tsx` hero section to use `siteConfig.hero.eyebrow`, `siteConfig.hero.headlineLine1`, `siteConfig.hero.headlineLine2`, and `siteConfig.hero.description`.
+- [x] Preserved all existing styling, animations, layouts, and component structures untouched.
+- [x] Verified `tsc --noEmit` passed with 0 errors.
+- [x] Verified `vite build` succeeded cleanly.
+- [x] Updated `PROJECT_CONTEXT.md` and `TASK_STATE.md`.
 
 # Remaining
 
@@ -41,24 +39,26 @@ Implement `src/pages/Home.tsx` composing Hero with 3D viewer, scroll transitions
 
 | When | What |
 |---|---|
-| 2026-09-27 ~12:30 | Generated Stitch architectural homepage design (Vault Architectural Homepage) |
-| 2026-09-27 ~12:32 | Implemented full `src/pages/Home.tsx` composing existing components |
-| 2026-09-27 ~12:34 | Verified tsc and production build passed cleanly |
+| 2026-09-27 ~12:32 | Implemented full `src/pages/Home.tsx` |
+| 2026-09-27 ~15:00 | Created `src/config/site.ts` with `siteConfig` and refactored Navbar, Footer, Home to use it |
 
 # Files Being Worked On
 
 | File | Role |
 |---|---|
-| `src/pages/Home.tsx` | Homepage composing Hero, Brand Intro, Category Grid, and Featured Products |
+| `src/config/site.ts` | Central site configuration |
+| `src/components/Navbar.tsx` | Brand logo text via siteConfig |
+| `src/components/Footer.tsx` | Brand, tagline, and contact info via siteConfig |
+| `src/pages/Home.tsx` | Hero eyebrow, headline, and description via siteConfig |
 
 # Verification
 
 | Check | Result |
 |---|---|
 | `tsc --noEmit` | ✅ Pass (zero errors) |
-| `vite build` | ✅ Pass (CSS 19.40 kB, JS 1329.99 kB) |
+| `vite build` | ✅ Pass (CSS 19.55 kB, JS 1330.30 kB) |
 | Dev server | Running |
 
 # Last Updated
 
-2026-09-27T12:35:00+05:30
+2026-09-27T15:02:00+05:30

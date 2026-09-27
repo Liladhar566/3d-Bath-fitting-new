@@ -9,6 +9,7 @@ import {
 } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import Button from '@/components/Button'
+import { siteConfig } from '@/config/site'
 
 const NAV_LINKS = [
   { to: '/', label: 'Home' },
@@ -100,7 +101,7 @@ export default function Navbar() {
             to="/"
             className={`font-serif text-xl font-medium tracking-tight transition-colors duration-300 ${textColor}`}
           >
-            BathFittings
+            {siteConfig.logoText}
           </Link>
 
           {/* Desktop nav links */}

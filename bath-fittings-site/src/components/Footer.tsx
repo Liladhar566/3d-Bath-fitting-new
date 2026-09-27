@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { siteConfig } from '@/config/site'
 
 const NAV_LINKS = [
   { to: '/', label: 'Home' },
@@ -52,10 +53,10 @@ export default function Footer() {
               to="/"
               className="font-serif text-xl font-medium text-ivory tracking-tight"
             >
-              BathFittings
+              {siteConfig.brandName}
             </Link>
             <p className="text-sm text-metal mt-3">
-              Crafted for modern living.
+              {siteConfig.tagline}
             </p>
           </div>
 
@@ -89,24 +90,22 @@ export default function Footer() {
             <ul className="flex flex-col gap-3 text-sm text-metal">
               <li>
                 <a
-                  href="mailto:hello@bathfittings.com"
+                  href={`mailto:${siteConfig.contact.email}`}
                   className="hover:text-bronze transition-colors duration-200"
                 >
-                  hello@bathfittings.com
+                  {siteConfig.contact.email}
                 </a>
               </li>
               <li>
                 <a
-                  href="tel:+911234567890"
+                  href={`tel:${siteConfig.contact.phone.replace(/\s+/g, '')}`}
                   className="hover:text-bronze transition-colors duration-200"
                 >
-                  +91 123 456 7890
+                  {siteConfig.contact.phone}
                 </a>
               </li>
               <li className="leading-relaxed">
-                42 Design District, Andheri East,
-                <br />
-                Mumbai 400 069, India
+                {siteConfig.contact.address}
               </li>
             </ul>
           </div>
@@ -120,7 +119,7 @@ export default function Footer() {
 
         {/* ---- Bottom row ---- */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 pb-8 text-xs text-metal">
-          <p>&copy; 2026 BathFittings. All rights reserved.</p>
+          <p>&copy; 2026 {siteConfig.brandName}. All rights reserved.</p>
           <div className="flex items-center gap-4">
             <Link
               to="/privacy"

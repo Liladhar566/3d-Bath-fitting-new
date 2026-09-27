@@ -60,6 +60,8 @@ bath-fittings-site/
 │   │   └── categories.ts      # 6 category entries (All + 5 real categories)
 │   ├── services/
 │   │   └── productService.ts  # Pure functions: getAll, bySlug, featured, byCategory
+│   ├── config/
+│   │   └── site.ts            # Central site configuration (brand, hero text, contact, social)
 │   └── assets/
 │       ├── 3d/                # Empty — for 3D models (.glb, .gltf, etc.)
 │       ├── images/            # Empty — for general images

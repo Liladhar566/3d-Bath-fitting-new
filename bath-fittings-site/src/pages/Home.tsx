@@ -7,6 +7,7 @@ import Button from '@/components/Button'
 import SectionHeading from '@/components/SectionHeading'
 import ProductGrid from '@/components/ProductGrid'
 import { getFeaturedProducts } from '@/services/productService'
+import { siteConfig } from '@/config/site'
 
 const CATEGORIES = [
   {
@@ -104,22 +105,22 @@ export default function Home() {
               {/* 1. Eyebrow */}
               <motion.div variants={heroChildVariants}>
                 <p className="type-eyebrow text-metal tracking-widest mb-3 md:mb-4">
-                  CRAFTED FOR MODERN LIVING
+                  {siteConfig.hero.eyebrow}
                 </p>
               </motion.div>
 
               {/* 2. H1 */}
               <motion.div variants={heroChildVariants}>
                 <h1 className="type-h1 text-charcoal tracking-tight leading-[1.08]">
-                  <span className="block">THE ART OF</span>
-                  <span className="block">EVERYDAY WATER</span>
+                  <span className="block">{siteConfig.hero.headlineLine1}</span>
+                  <span className="block">{siteConfig.hero.headlineLine2}</span>
                 </h1>
               </motion.div>
 
               {/* 3. One-sentence premium brand paragraph */}
               <motion.div variants={heroChildVariants}>
                 <p className="type-body text-metal mt-4 md:mt-6 max-w-lg">
-                  Architectural precision meets elemental purity in bathroom fittings crafted for enduring beauty and serene contemplation.
+                  {siteConfig.hero.description}
                 </p>
               </motion.div>
 
