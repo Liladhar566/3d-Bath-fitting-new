@@ -41,20 +41,25 @@ bath-fittings-site/
 │   ├── components/
 │   │   ├── Layout.tsx         # Persistent layout: Navbar + PageTransition(Outlet) + Footer
 │   │   ├── Navbar.tsx         # Fixed navbar: scroll-driven bg/blur/height, mobile overlay
-│   │   ├── Footer.tsx         # Empty shell — needs implementation
+│   │   ├── Footer.tsx         # 4-col grid footer: brand, nav, collections, contact + copyright
 │   │   ├── PageTransition.tsx # Pass-through wrapper (no animation yet)
 │   │   ├── ThreeDViewer.tsx   # R3F Canvas owner (camera, lights, Suspense, reduced-motion)
 │   │   ├── HeroSceneContent.tsx # Scene-graph-only: rotating torus knot placeholder
 │   │   ├── Button.tsx         # Primary/secondary button with arrow icon
-│   │   └── SectionHeading.tsx # Eyebrow + h2 + description pattern
+│   │   ├── SectionHeading.tsx # Eyebrow + h2 + description pattern
+│   │   ├── ProductCard.tsx   # Product card: image, category, name, price, hover effects
+│   │   └── ProductGrid.tsx   # Responsive grid of ProductCards (1→2→3 cols)
 │   ├── pages/
 │   │   ├── Home.tsx           # 100vh ThreeDViewer section + h1
 │   │   ├── Products.tsx       # Placeholder h1
 │   │   ├── ProductDetails.tsx # Placeholder h1 (route param: :productId)
 │   │   ├── About.tsx          # Placeholder h1
 │   │   └── Contact.tsx        # Placeholder h1
-│   ├── data/                  # Empty — for product data, constants, etc.
-│   ├── services/              # Empty — for API clients, utilities, etc.
+│   ├── data/
+│   │   ├── products.ts        # Product interface + 9 seed products across 5 categories
+│   │   └── categories.ts      # 6 category entries (All + 5 real categories)
+│   ├── services/
+│   │   └── productService.ts  # Pure functions: getAll, bySlug, featured, byCategory
 │   └── assets/
 │       ├── 3d/                # Empty — for 3D models (.glb, .gltf, etc.)
 │       ├── images/            # Empty — for general images
@@ -87,7 +92,8 @@ ThreeDViewer.tsx (Canvas owner)
 | Feature | Status | Notes |
 |---|---|---|
 | React Router navigation | ✅ Wired | 5 routes, all rendering placeholder h1 elements |
-| Layout with Navbar/Footer | ✅ Wired | Navbar fully implemented, Footer still empty shell |
+| Layout with Navbar/Footer | ✅ Wired | Both Navbar and Footer fully implemented |
+| Footer | ✅ Implemented | 4-col grid, charcoal bg, whileInView fade-in, responsive stacking |
 | Navbar | ✅ Implemented | Scroll-driven bg/blur/height, NavLink active states, mobile overlay |
 | 3D Canvas integration | ✅ Wired | R3F Canvas with camera, lights, DPR, Suspense |
 | Rotating torus knot | ✅ Working | Placeholder 3D content with reduced-motion support |
@@ -95,15 +101,19 @@ ThreeDViewer.tsx (Canvas owner)
 | Button component | ✅ Implemented | Primary (bronze) / secondary (outlined) with arrow hover |
 | SectionHeading component | ✅ Implemented | Eyebrow + h2 + description, left/center alignment |
 | Page transitions | ⬜ Stub only | PageTransition is pass-through, no animation yet |
-| Product data / catalog | ⬜ Not started | data/ directory is empty |
+| Product data layer | ✅ Implemented | 9 products, 5 categories, Product interface, service functions |
+| ProductCard component | ✅ Implemented | Image 4:5, eyebrow category, name, price, hover effects |
+| ProductGrid component | ✅ Implemented | Responsive 1→2→3 col grid, empty-state message |
 | Contact form | ⬜ Not started | — |
 
 # Data / Backend
 
-- **No database, API, or backend** exists at this stage.
-- The `src/data/` directory is reserved for static product data (JSON, TS constants).
-- The `src/services/` directory is reserved for API clients or utility services.
-- No external services are integrated.
+- **No database or external API** — all product data is static in `src/data/products.ts`.
+- **Product interface**: `id`, `slug`, `name`, `category`, `price?`, `image`, `description`, `featured?`, `model?`, `gallery?`, `specifications?`.
+- **9 seed products** across 5 categories: Faucets (2), Basin Mixers (2), Showers (2), Bath Fittings (1), Accessories (2). 5 are `featured: true`.
+- **Categories** defined in `src/data/categories.ts`: All, Faucets, Basin Mixers, Showers, Bath Fittings, Accessories.
+- **Service layer** (`src/services/productService.ts`): `getAllProducts()`, `getProductBySlug(slug)`, `getFeaturedProducts()`, `getProductsByCategory(category)` — pure functions, case-insensitive matching.
+- Product images use placeholder paths (`/products/placeholder-N.jpg`) that will 404 until real images are added.
 - No secrets or credentials exist in the project.
 
 # Design System / UI
