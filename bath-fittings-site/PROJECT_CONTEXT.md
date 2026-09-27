@@ -43,18 +43,19 @@ bath-fittings-site/
 │   │   ├── Navbar.tsx         # Fixed navbar: scroll-driven bg/blur/height, mobile overlay
 │   │   ├── Footer.tsx         # 4-col grid footer: brand, nav, collections, contact + copyright
 │   │   ├── PageTransition.tsx # Pass-through wrapper (no animation yet)
-│   │   ├── ThreeDViewer.tsx   # R3F Canvas owner (camera, lights, Suspense, reduced-motion)
-│   │   ├── HeroSceneContent.tsx # Scene-graph-only: rotating torus knot placeholder
+│   │   ├── ThreeDViewer.tsx   # R3F Canvas owner (studio Environment, camera, reduced-motion)
+│   │   ├── HeroSceneContent.tsx # Scene-graph-only: chrome torus + capsule + glass droplets with parallax & bobbing
 │   │   ├── Button.tsx         # Primary/secondary button with arrow icon
 │   │   ├── SectionHeading.tsx # Eyebrow + h2 + description pattern
 │   │   ├── ProductCard.tsx   # Product card: image, category, name, price, hover effects
-│   │   └── ProductGrid.tsx   # Responsive grid of ProductCards (1→2→3 cols)
+│   │   ├── ProductGrid.tsx   # Responsive grid of ProductCards (1→2→3 cols)
+│   │   └── EnquiryForm.tsx   # Shared enquiry form: modal (overlay) or inline variant, validation, success state
 │   ├── pages/
 │   │   ├── Home.tsx           # Full homepage: Hero (3D + staggered text), Brand Intro, Categories, Featured Products
-│   │   ├── Products.tsx       # Placeholder h1
-│   │   ├── ProductDetails.tsx # Placeholder h1 (route param: :productId)
-│   │   ├── About.tsx          # Placeholder h1
-│   │   └── Contact.tsx        # Placeholder h1
+│   │   ├── Products.tsx       # Catalog: category pills + search + AnimatePresence grid
+│   │   ├── ProductDetails.tsx # Slug lookup, two-col image+info, specs, modal enquiry
+│   │   ├── About.tsx          # Hero statement + 4 alternating image/text sections with whileInView
+│   │   └── Contact.tsx        # Two-col: contact info + inline EnquiryForm, WhatsApp CTA
 │   ├── data/
 │   │   ├── products.ts        # Product interface + 9 seed products across 5 categories
 │   │   └── categories.ts      # 6 category entries (All + 5 real categories)
@@ -93,12 +94,12 @@ ThreeDViewer.tsx (Canvas owner)
 
 | Feature | Status | Notes |
 |---|---|---|
-| React Router navigation | ✅ Wired | 5 routes, all rendering placeholder h1 elements |
+| React Router navigation | ✅ Wired | 5 routes, all rendering full page content |
 | Layout with Navbar/Footer | ✅ Wired | Both Navbar and Footer fully implemented |
 | Footer | ✅ Implemented | 4-col grid, charcoal bg, whileInView fade-in, responsive stacking |
 | Navbar | ✅ Implemented | Scroll-driven bg/blur/height, NavLink active states, mobile overlay |
-| 3D Canvas integration | ✅ Wired | R3F Canvas with camera, lights, DPR, Suspense |
-| Rotating torus knot | ✅ Working | Placeholder 3D content with reduced-motion support |
+| 3D Canvas integration | ✅ Wired | R3F Canvas with camera, studio Environment, DPR, Suspense |
+| Interactive 3D Hero Scene | ✅ Working | Chrome torus + diagonal capsule + glass droplets with parallax & bobbing |
 | Design system | ✅ Implemented | Colors, fonts, fluid type scale, body defaults |
 | Button component | ✅ Implemented | Primary (bronze) / secondary (outlined) with arrow hover |
 | SectionHeading component | ✅ Implemented | Eyebrow + h2 + description, left/center alignment |
@@ -106,7 +107,12 @@ ThreeDViewer.tsx (Canvas owner)
 | Product data layer | ✅ Implemented | 9 products, 5 categories, Product interface, service functions |
 | ProductCard component | ✅ Implemented | Image 4:5, eyebrow category, name, price, hover effects |
 | ProductGrid component | ✅ Implemented | Responsive 1→2→3 col grid, empty-state message |
-| Contact form | ⬜ Not started | — |
+| EnquiryForm component | ✅ Implemented | Modal + inline variants, validation, prefilled product, success state |
+| Products page | ✅ Implemented | Category pills, search, AnimatePresence card transitions |
+| ProductDetails page | ✅ Implemented | Slug lookup, two-col, specs, staggered entrance, modal enquiry |
+| About page | ✅ Implemented | Hero + 4 alternating sections with whileInView |
+| Contact page | ✅ Implemented | Contact info, business hours, map placeholder, inline form, WhatsApp CTA |
+| Site config | ✅ Implemented | Central siteConfig: brand, hero, contact, social |
 
 # Data / Backend
 

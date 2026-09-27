@@ -1,5 +1,6 @@
 import { Suspense, useSyncExternalStore } from 'react'
 import { Canvas } from '@react-three/fiber'
+import { Environment } from '@react-three/drei'
 import HeroSceneContent from '@/components/HeroSceneContent'
 
 const motionQuery =
@@ -27,11 +28,13 @@ export default function ThreeDViewer() {
     <Canvas
       dpr={[1, 2]}
       gl={{ antialias: true }}
-      camera={{ position: [0, 0, 5], fov: 45 }}
+      camera={{ position: [2.5, 1, 4], fov: 40 }}
+      onCreated={({ camera }) => camera.lookAt(0, 0, 0)}
     >
       <Suspense fallback={null}>
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[5, 5, 5]} intensity={1} />
+        <Environment preset="studio" />
+        <ambientLight intensity={0.3} />
+        <directionalLight position={[5, 5, 5]} intensity={0.8} />
         <HeroSceneContent reducedMotion={reducedMotion} />
       </Suspense>
     </Canvas>
