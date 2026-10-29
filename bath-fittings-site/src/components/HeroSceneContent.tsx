@@ -12,7 +12,7 @@ import type { HeroKeyframe } from '@/config/heroChoreography'
 /* ------------------------------------------------------------------ */
 const MAX_PARALLAX_RAD = (2 * Math.PI) / 180 // 2 degrees max
 const PARALLAX_LERP = 0.04
-const DAMP_LAMBDA = 4 // smoothing for keyframe interpolation
+const DAMP_LAMBDA = 4 // smoothing for keyframe damping
 
 /* ------------------------------------------------------------------ */
 /*  Easing helper: cubic ease-in-out                                  */
@@ -90,55 +90,93 @@ export default function HeroSceneContent({
   const groupRef = useRef<Group>(null)
   const innerRef = useRef<Group>(null)
 
-  const { size } = useThree()
-  const isMobileViewport = size.width < 768
+  const { size, viewport } = useThree()
 
   /* ---- Load GLB -------------------------------------------------- */
   const gltf = useGLTF('/models/hero.glb')
-  const { actions, clips } = useAnimations(gltf.animations, innerRef)
+  const { actions, clips } = useAnimations(gltf.animations, gltf.scene)
 
-  /* ---- Smoothed clip time for scroll-scrubbing -------------------- */
-  const smoothClipTime = useRef(0)
-
-  /* ---- Log clip names & durations once ----------------------------- */
+  /* ---- Traverse meshes & disable frustum culling ------------------ */
   useEffect(() => {
-    if (clips.length > 0) {
-      console.log('=== GLB Animation Clips ===')
-      clips.forEach((clip) => {
-        console.log(`  "${clip.name}"  duration: ${clip.duration.toFixed(3)}s`)
-      })
-    } else {
-      console.log('GLB has no animation clips.')
-    }
-  }, [clips])
-
-  /* ---- Auto-fit: center + uniform scale to ~3 units --------------- */
-  const { scaleFactor, offset } = useMemo(() => {
-    const box = new THREE.Box3().setFromObject(gltf.scene)
-    const boxSize = box.getSize(new THREE.Vector3())
-    const center = box.getCenter(new THREE.Vector3())
-
-    console.log(
-      `GLB bounding box size before scaling: x=${boxSize.x.toFixed(3)}  y=${boxSize.y.toFixed(3)}  z=${boxSize.z.toFixed(3)}`
-    )
-
-    const maxDim = Math.max(boxSize.x, boxSize.y, boxSize.z)
-    const s = maxDim > 0 ? 3 / maxDim : 1
-
-    return { scaleFactor: s, offset: center.negate() }
+    gltf.scene.traverse((obj) => {
+      if ((obj as THREE.Mesh).isMesh) {
+        obj.frustumCulled = false
+      }
+    })
   }, [gltf.scene])
 
-  /* ---- Configure first animation clip as paused (scroll-driven) --- */
+  /* ---- Normalise model: bounding sphere diameter = 1 unit --------- */
+  const { baseScale, offset, sphereDiameter } = useMemo(() => {
+    const box = new THREE.Box3().setFromObject(gltf.scene)
+    const sphere = new THREE.Sphere()
+    box.getBoundingSphere(sphere)
+
+    const diameter = sphere.radius * 2
+    const scale = diameter > 0 ? 1 / diameter : 1
+    const center = sphere.center.clone()
+
+    return {
+      baseScale: scale,
+      offset: center.negate(),
+      sphereDiameter: diameter,
+    }
+  }, [gltf.scene])
+
+  /* ---- Responsive fit size calculation --------------------------- */
+  const { wFrac, hFrac } = useMemo(() => {
+    if (size.width < 768) {
+      return { wFrac: 0.92, hFrac: 0.45 }
+    }
+    if (size.width < 1024) {
+      return { wFrac: 0.65, hFrac: 0.60 }
+    }
+    return { wFrac: 0.50, hFrac: 0.75 }
+  }, [size.width])
+
+  const fitSize = Math.min(viewport.width * wFrac, viewport.height * hFrac)
+
+  /* ---- TEMPORARY DEBUG: log once on load -------------------------- */
+  const hasLoggedDebug = useRef(false)
+  useEffect(() => {
+    if (!hasLoggedDebug.current && gltf.scene && sphereDiameter > 0) {
+      hasLoggedDebug.current = true
+      console.log('GLB loaded')
+      console.log('model bounding-sphere diameter before normalising:', sphereDiameter)
+      console.log('canvas client size:', { width: size.width, height: size.height })
+      console.log('viewport width/height:', { width: viewport.width, height: viewport.height })
+      console.log('computed fitSize:', fitSize)
+    }
+  }, [gltf.scene, sphereDiameter, size.width, size.height, viewport.width, viewport.height, fitSize])
+
+  /* ---- Setup animation clips: reset.play() then pause ------------- */
   useEffect(() => {
     if (!clips.length) return
-    const firstAction = actions[clips[0].name]
-    if (firstAction) {
-      firstAction.reset()
-      firstAction.play()
-      firstAction.paused = true
-      firstAction.clampWhenFinished = true
-    }
+    clips.forEach((clip) => {
+      const action = actions[clip.name]
+      if (action) {
+        action.reset().play()
+        action.paused = true
+      }
+    })
   }, [actions, clips])
+
+  /* ---- Window pointer listener for parallax ---------------------- */
+  const pointerRef = useRef({ x: 0, y: 0 })
+  useEffect(() => {
+    if (reducedMotion) return
+
+    const handlePointerMove = (e: PointerEvent) => {
+      const x = (e.clientX / window.innerWidth) * 2 - 1
+      const y = -(e.clientY / window.innerHeight) * 2 - 1
+      pointerRef.current = {
+        x: Math.max(-1, Math.min(1, x)),
+        y: Math.max(-1, Math.min(1, y)),
+      }
+    }
+
+    window.addEventListener('pointermove', handlePointerMove)
+    return () => window.removeEventListener('pointermove', handlePointerMove)
+  }, [reducedMotion])
 
   /* ---- Per-frame updates ----------------------------------------- */
   useFrame((_state, delta) => {
@@ -147,11 +185,20 @@ export default function HeroSceneContent({
     const progress = scrollProgress ? scrollProgress.get() : 0
     const sampled = sampleKeyframes(progress)
 
-    /* Apply the mobile x-position scaling */
-    const mobileXScale = isMobileViewport ? 0.35 : 1
-    const targetX = sampled.position[0] * mobileXScale
-    const targetY = sampled.position[1]
-    const targetZ = sampled.position[2]
+    const isMobile = size.width < 768
+
+    // Screen-normalised conversion to world units
+    let targetX = sampled.position[0] * (viewport.width / 2)
+    let targetY = sampled.position[1] * (viewport.height / 2)
+    let targetZ = sampled.position[2]
+    let targetScale = fitSize * sampled.scale
+
+    if (isMobile) {
+      targetX *= 0.25
+      targetY += 0.18 * (viewport.height / 2)
+      targetZ *= 0.5
+      targetScale *= 0.85
+    }
 
     /* Damp position toward targets */
     groupRef.current.position.x = THREE.MathUtils.damp(
@@ -177,32 +224,26 @@ export default function HeroSceneContent({
 
     /* Damp uniform scale */
     const currentScale = groupRef.current.scale.x
-    const dampedScale = THREE.MathUtils.damp(currentScale, sampled.scale, DAMP_LAMBDA, delta)
+    const dampedScale = THREE.MathUtils.damp(currentScale, targetScale, DAMP_LAMBDA, delta)
     groupRef.current.scale.setScalar(dampedScale)
 
-    /* Mouse-parallax — very subtle additive rotation */
+    /* Mouse-parallax from window pointermove */
     if (!reducedMotion) {
-      const cx = Math.max(-1, Math.min(1, _state.pointer.x))
-      const cy = Math.max(-1, Math.min(1, _state.pointer.y))
-      const parallaxY = cx * MAX_PARALLAX_RAD
-      const parallaxX = -cy * MAX_PARALLAX_RAD
+      const parallaxY = pointerRef.current.x * MAX_PARALLAX_RAD
+      const parallaxX = -pointerRef.current.y * MAX_PARALLAX_RAD
 
       groupRef.current.rotation.x += parallaxX * PARALLAX_LERP
       groupRef.current.rotation.y += parallaxY * PARALLAX_LERP
     }
 
-    /* Scrub first animation clip across the full runway */
-    if (clips.length > 0) {
-      const clip = clips[0]
+    /* Scrub animation clips across the runway */
+    clips.forEach((clip) => {
       const action = actions[clip.name]
       if (action) {
         const targetTime = progress * clip.duration
-        smoothClipTime.current = THREE.MathUtils.damp(
-          smoothClipTime.current, targetTime, DAMP_LAMBDA, delta
-        )
-        action.time = smoothClipTime.current
+        action.time += (targetTime - action.time) * 0.1
       }
-    }
+    })
   })
 
   return (
@@ -210,11 +251,11 @@ export default function HeroSceneContent({
       <group
         ref={innerRef}
         position={[
-          offset.x * scaleFactor,
-          offset.y * scaleFactor,
-          offset.z * scaleFactor,
+          offset.x * baseScale,
+          offset.y * baseScale,
+          offset.z * baseScale,
         ]}
-        scale={[scaleFactor, scaleFactor, scaleFactor]}
+        scale={[baseScale, baseScale, baseScale]}
       >
         <primitive object={gltf.scene} />
       </group>

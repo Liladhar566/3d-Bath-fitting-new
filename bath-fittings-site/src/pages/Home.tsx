@@ -71,10 +71,10 @@ export default function Home() {
       >
         <motion.div
           style={{ opacity: stickyOpacity, y: stickyY }}
-          className="sticky top-0 h-screen overflow-hidden"
+          className="sticky top-0 h-screen w-full overflow-hidden"
         >
           <ThreeDViewer
-            className="absolute inset-0"
+            className="z-0"
             scrollProgress={progress}
           />
           <HeroOverlay scrollProgress={progress} />

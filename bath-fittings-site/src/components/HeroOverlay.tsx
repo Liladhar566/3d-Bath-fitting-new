@@ -216,45 +216,12 @@ function ProgressIndicator({
   )
 }
 
-/** Faint parallax brand watermark for depth */
-function BrandWatermark({
-  scrollProgress,
-}: {
-  scrollProgress: MotionValue<number>
-}) {
-  const x = useTransform(scrollProgress, [0, 1], ['5%', '-15%'])
-
-  return (
-    <motion.div
-      style={{ x }}
-      aria-hidden="true"
-      className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden pointer-events-none select-none"
-    >
-      <span
-        className="font-serif whitespace-nowrap"
-        style={{
-          fontSize: 'clamp(8rem, 20vw, 22rem)',
-          opacity: 0.05,
-          WebkitTextStroke: '2px currentColor',
-          WebkitTextFillColor: 'transparent',
-          color: 'var(--color-charcoal)',
-        }}
-      >
-        {siteConfig.brandName}
-      </span>
-    </motion.div>
-  )
-}
-
 /* ------------------------------------------------------------------ */
 /*  Main HeroOverlay                                                  */
 /* ------------------------------------------------------------------ */
 export default function HeroOverlay({ scrollProgress }: HeroOverlayProps) {
   return (
-    <div className="absolute inset-0 z-10">
-      {/* Background brand word */}
-      <BrandWatermark scrollProgress={scrollProgress} />
-
+    <div className="absolute inset-0 z-10 pointer-events-none">
       {/* Stage 0: intro hero text + CTAs */}
       <HeroIntro scrollProgress={scrollProgress} />
 

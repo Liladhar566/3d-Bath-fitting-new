@@ -1,11 +1,14 @@
 import { siteConfig } from '@/config/site'
 
 /* ====================================================================
-   Hero Choreography — keyframed camera/model poses for scroll runway
+   Hero Choreography — screen-normalised keyframes for scroll runway
 
-   position : world-space translation [x, y, z]
-   rotation : Euler angles in radians  [x, y, z]
-   scale    : uniform scale factor
+   position : [x, y, z]
+              x: fraction of half the viewport width  (worldX = x * viewport.width / 2)
+              y: fraction of half the viewport height (worldY = y * viewport.height / 2)
+              z: depth in world units
+   rotation : Euler angles in radians [x, y, z]
+   scale    : multiplier relative to the device-fitted size
    at       : normalised runway progress (0 = top, 1 = bottom)
    ==================================================================== */
 
@@ -17,13 +20,13 @@ export interface HeroKeyframe {
 }
 
 export const heroKeyframes: HeroKeyframe[] = [
-  { at: 0.0,  position: [1.8, -0.1, 0],    rotation: [0.15, -0.6, 0],     scale: 0.9  },
-  { at: 0.15, position: [1.8, 0, 0],        rotation: [0.2, -0.2, 0],      scale: 0.95 },
-  { at: 0.3,  position: [0, 0, 1.2],        rotation: [0.1, 0.9, 0.05],    scale: 1.35 },
-  { at: 0.5,  position: [-1.6, 0.2, 0.6],   rotation: [-0.15, 2.2, -0.1],  scale: 1.2  },
-  { at: 0.7,  position: [0.8, -0.2, -0.4],  rotation: [0.3, 3.6, 0.1],     scale: 1.0  },
-  { at: 0.88, position: [0, 0.1, 0.8],      rotation: [0.1, 6.283, 0],     scale: 1.15 },
-  { at: 1.0,  position: [0, 0.9, -1.5],     rotation: [0.1, 6.283, 0],     scale: 0.7  },
+  { at: 0.00, position: [0.46, -0.04, 0],   rotation: [0.15, -0.6, 0],     scale: 0.9  },
+  { at: 0.15, position: [0.46, 0, 0],       rotation: [0.2, -0.2, 0],      scale: 0.95 },
+  { at: 0.30, position: [0, 0, 1.2],        rotation: [0.1, 0.9, 0.05],    scale: 1.25 },
+  { at: 0.50, position: [-0.4, 0.09, 0.6],  rotation: [-0.15, 2.2, -0.1],  scale: 1.15 },
+  { at: 0.70, position: [0.2, -0.09, -0.4], rotation: [0.3, 3.6, 0.1],    scale: 1.0  },
+  { at: 0.88, position: [0, 0.05, 0.8],     rotation: [0.1, 6.283, 0],     scale: 1.1  },
+  { at: 1.00, position: [0, 0.4, -1.5],     rotation: [0.1, 6.283, 0],     scale: 0.7  },
 ]
 
 /* ====================================================================
@@ -46,4 +49,3 @@ export const heroStages: HeroStage[] = siteConfig.hero.stages.map((s) => ({
   title: s.title,
   text: s.text,
 }))
-
