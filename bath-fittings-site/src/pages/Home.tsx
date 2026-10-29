@@ -79,6 +79,7 @@ export default function Home() {
 
   const textOpacityRaw = useTransform(scrollYProgress, [0, 0.85], [1, 0])
   const viewerScaleRaw = useTransform(scrollYProgress, [0, 1], [1, 0.92])
+  const heroScrollProgress = useTransform(scrollYProgress, [0, 0.25, 1], [0, 1, 1])
 
   const textOpacity = useSpring(textOpacityRaw, SPRING_CONFIG)
   const viewerScale = useSpring(viewerScaleRaw, SPRING_CONFIG)
@@ -127,7 +128,7 @@ export default function Home() {
               {/* 4. Button group */}
               <motion.div
                 variants={heroChildVariants}
-                className="mt-6 md:mt-8 flex flex-wrap items-center gap-4"
+                className="mt-6 md:mt-8 flex flex-col sm:flex-row gap-4"
               >
                 <Button
                   variant="primary"
@@ -158,7 +159,7 @@ export default function Home() {
             style={{ scale: viewerScale }}
             className="order-1 md:order-2 w-full h-[45vh] md:h-full relative overflow-hidden flex items-center justify-center shrink-0"
           >
-            <ThreeDViewer />
+            <ThreeDViewer scrollProgress={heroScrollProgress} />
           </motion.div>
         </div>
       </section>

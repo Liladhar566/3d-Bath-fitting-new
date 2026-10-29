@@ -65,13 +65,6 @@ export default function Navbar() {
     (v: number) => `rgba(221, 217, 210, ${v})`
   )
 
-  /* Discrete text color swap */
-  const [scrolled, setScrolled] = useState(false)
-  useEffect(() => {
-    const unsubscribe = scrollY.on('change', (v) => setScrolled(v >= 80))
-    return unsubscribe
-  }, [scrollY])
-
   /* Body scroll lock when mobile menu is open */
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : ''
@@ -79,8 +72,6 @@ export default function Navbar() {
       document.body.style.overflow = ''
     }
   }, [isOpen])
-
-  const textColor = scrolled ? 'text-charcoal' : 'text-ivory'
 
   return (
     <>
@@ -99,7 +90,7 @@ export default function Navbar() {
           {/* Logo / Brand */}
           <Link
             to="/"
-            className={`font-serif text-xl font-medium tracking-tight transition-colors duration-300 ${textColor}`}
+            className="font-serif text-xl font-medium tracking-tight text-charcoal"
           >
             {siteConfig.logoText}
           </Link>
@@ -112,7 +103,7 @@ export default function Navbar() {
                 to={link.to}
                 end={link.to === '/'}
                 className={({ isActive }) =>
-                  `text-sm transition-colors duration-300 ${textColor} ${
+                  `text-sm text-charcoal ${
                     isActive
                       ? 'font-semibold'
                       : 'font-normal hover:opacity-70'
@@ -134,7 +125,7 @@ export default function Navbar() {
           {/* Mobile hamburger */}
           <button
             type="button"
-            className={`md:hidden p-2 -mr-2 transition-colors duration-300 ${textColor}`}
+            className="md:hidden p-2 -mr-2 text-charcoal"
             onClick={() => setIsOpen((prev) => !prev)}
             aria-label="Menu"
             aria-expanded={isOpen}

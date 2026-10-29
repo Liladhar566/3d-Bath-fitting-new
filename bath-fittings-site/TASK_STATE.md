@@ -1,10 +1,10 @@
 # Current Objective
 
-Replace placeholder 3D content with interactive chrome & glass hero composition.
+Rebuild hero 3D scene to depict overhead shower head with control valve and scroll-driven water flow.
 
 # Current Task
 
-Rewrite `src/components/HeroSceneContent.tsx` as a scene-graph-only component and update `src/components/ThreeDViewer.tsx` with studio Environment and camera adjustments.
+Rewrite `src/components/HeroSceneContent.tsx`, forward `scrollProgress` through `src/components/ThreeDViewer.tsx`, and derive `heroScrollProgress` in `src/pages/Home.tsx`.
 
 # Status
 
@@ -12,9 +12,23 @@ Rewrite `src/components/HeroSceneContent.tsx` as a scene-graph-only component an
 
 # Completed
 
-- [x] Rewrote `src/components/HeroSceneContent.tsx` with chrome torus, thin diagonal capsule, 3 glass droplet spheres, per-element useFrame rotation/bobbing, reduced motion support, and pointer parallax.
-- [x] Updated `src/components/ThreeDViewer.tsx` with drei `<Environment preset="studio" />`, lowered ambient light (0.3), and camera at `[2.5, 1, 4]` fov 40 looking at origin.
-- [x] Verified `tsc --noEmit` and `vite build` pass cleanly.
+- [x] Fixed hero button group in `src/pages/Home.tsx` to use `flex flex-col sm:flex-row gap-4` for clean vertical stacking on narrow viewports.
+- [x] Fixed navbar text/logo color in `src/components/Navbar.tsx` to consistently use `text-charcoal`, removing the scroll-based color-swap logic while preserving background/blur/height transitions.
+- [x] Rewrote `src/components/HeroSceneContent.tsx`:
+  - Overhead shower fitting: wall-mount arm with escutcheon, horizontal pipe, elbow connector, and wide angled disc shower head (`#E8E8E8`, metalness 0.9, roughness 0.25).
+  - Control valve with cylindrical body and rotating lever mesh.
+  - Water spray effect: plane beneath nozzle with custom `ShaderMaterial` (vertical-scrolling noise driven by `uTime`, light blue-white additive blending, opacity driven by `uOpacity`).
+  - 8 droplet spheres falling continuously with staggered offsets/speeds, opacity matching water.
+  - Accepts `scrollProgress: MotionValue<number>` prop, reads `scrollProgress.get()` inside `useFrame` without storing in React state.
+  - Lerps lever `rotation.z` from 0 to `Math.PI * 0.4` and water `uOpacity` / droplet opacity from 0 to 1 based on scroll progress.
+  - Preserves mouse-parallax tilt on outer group and freezes ambient idle bob when `reducedMotion` is true, while keeping scroll-driven response active.
+- [x] Updated `src/components/ThreeDViewer.tsx`:
+  - Accepts `scrollProgress` (`MotionValue<number>`) and forwards down to `HeroSceneContent`.
+  - Retained Canvas, studio Environment, camera setup, and reduced motion detection.
+- [x] Updated `src/pages/Home.tsx`:
+  - Derived `heroScrollProgress` via `useTransform(scrollYProgress, [0, 0.25, 1], [0, 1, 1])`.
+  - Passed `scrollProgress={heroScrollProgress}` to `<ThreeDViewer />`.
+- [x] Verified `tsc --noEmit` and `vite build` pass with 0 errors.
 
 - [x] Generated Stitch design references for About page and Contact page (project 13646462438883013133).
 - [x] Created `src/components/EnquiryForm.tsx`:

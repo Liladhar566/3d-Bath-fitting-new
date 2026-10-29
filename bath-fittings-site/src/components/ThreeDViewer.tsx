@@ -1,6 +1,7 @@
 import { Suspense, useSyncExternalStore } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Environment } from '@react-three/drei'
+import type { MotionValue } from 'framer-motion'
 import HeroSceneContent from '@/components/HeroSceneContent'
 
 const motionQuery =
@@ -21,7 +22,11 @@ function useReducedMotion() {
   return useSyncExternalStore(subscribe, getSnapshot, () => false)
 }
 
-export default function ThreeDViewer() {
+interface ThreeDViewerProps {
+  scrollProgress?: MotionValue<number>
+}
+
+export default function ThreeDViewer({ scrollProgress }: ThreeDViewerProps) {
   const reducedMotion = useReducedMotion()
 
   return (
@@ -35,7 +40,10 @@ export default function ThreeDViewer() {
         <Environment preset="studio" />
         <ambientLight intensity={0.3} />
         <directionalLight position={[5, 5, 5]} intensity={0.8} />
-        <HeroSceneContent reducedMotion={reducedMotion} />
+        <HeroSceneContent
+          reducedMotion={reducedMotion}
+          scrollProgress={scrollProgress}
+        />
       </Suspense>
     </Canvas>
   )

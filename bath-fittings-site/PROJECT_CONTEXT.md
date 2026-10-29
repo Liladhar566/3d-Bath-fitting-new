@@ -43,8 +43,8 @@ bath-fittings-site/
 │   │   ├── Navbar.tsx         # Fixed navbar: scroll-driven bg/blur/height, mobile overlay
 │   │   ├── Footer.tsx         # 4-col grid footer: brand, nav, collections, contact + copyright
 │   │   ├── PageTransition.tsx # Pass-through wrapper (no animation yet)
-│   │   ├── ThreeDViewer.tsx   # R3F Canvas owner (studio Environment, camera, reduced-motion)
-│   │   ├── HeroSceneContent.tsx # Scene-graph-only: chrome torus + capsule + glass droplets with parallax & bobbing
+│   │   ├── ThreeDViewer.tsx   # R3F Canvas owner (studio Environment, camera, forwards scrollProgress)
+│   │   ├── HeroSceneContent.tsx # Overhead shower fitting + control valve + water spray shader & falling droplets
 │   │   ├── Button.tsx         # Primary/secondary button with arrow icon
 │   │   ├── SectionHeading.tsx # Eyebrow + h2 + description pattern
 │   │   ├── ProductCard.tsx   # Product card: image, category, name, price, hover effects
@@ -99,7 +99,7 @@ ThreeDViewer.tsx (Canvas owner)
 | Footer | ✅ Implemented | 4-col grid, charcoal bg, whileInView fade-in, responsive stacking |
 | Navbar | ✅ Implemented | Scroll-driven bg/blur/height, NavLink active states, mobile overlay |
 | 3D Canvas integration | ✅ Wired | R3F Canvas with camera, studio Environment, DPR, Suspense |
-| Interactive 3D Hero Scene | ✅ Working | Chrome torus + diagonal capsule + glass droplets with parallax & bobbing |
+| Interactive 3D Hero Scene | ✅ Working | Overhead shower head + valve + scroll-driven water flow & droplets |
 | Design system | ✅ Implemented | Colors, fonts, fluid type scale, body defaults |
 | Button component | ✅ Implemented | Primary (bronze) / secondary (outlined) with arrow hover |
 | SectionHeading component | ✅ Implemented | Eyebrow + h2 + description, left/center alignment |
