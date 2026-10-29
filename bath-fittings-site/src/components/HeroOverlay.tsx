@@ -1,9 +1,11 @@
+import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, useTransform } from 'framer-motion'
 import type { MotionValue } from 'framer-motion'
 import Button from '@/components/Button'
 import { siteConfig } from '@/config/site'
 import { heroStages } from '@/config/heroChoreography'
+import { heroLayout } from '@/config/heroLayout'
 
 /* ------------------------------------------------------------------ */
 /*  Entrance animation variants (initial hero text stagger)           */
@@ -37,27 +39,66 @@ interface HeroOverlayProps {
 /* ------------------------------------------------------------------ */
 
 /** Stage 0 — opening hero text + CTA buttons */
-function HeroIntro({ scrollProgress }: { scrollProgress: MotionValue<number> }) {
+function HeroIntro({
+  scrollProgress,
+  containerRef,
+}: {
+  scrollProgress: MotionValue<number>
+  containerRef: React.RefObject<HTMLDivElement | null>
+}) {
   const navigate = useNavigate()
+  const blockRef = useRef<HTMLDivElement>(null)
 
   const opacity = useTransform(scrollProgress, [0, 0.12, 0.2], [1, 1, 0])
   const y = useTransform(scrollProgress, [0.12, 0.2], [0, -40])
 
+  useEffect(() => {
+    const updateZone = () => {
+      const block = blockRef.current
+      const container = containerRef.current
+      if (!block || !container) return
+
+      const blockRect = block.getBoundingClientRect()
+      const containerRect = container.getBoundingClientRect()
+      heroLayout.zoneBottom = blockRect.top - containerRect.top - 12
+
+      const navbar = document.querySelector('nav')
+      const navH = navbar ? navbar.getBoundingClientRect().height : 88
+      heroLayout.zoneTop = navH + 8
+    }
+
+    updateZone()
+
+    window.addEventListener('resize', updateZone)
+
+    let ro: ResizeObserver | null = null
+    if (blockRef.current && typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(updateZone)
+      ro.observe(blockRef.current)
+    }
+
+    return () => {
+      window.removeEventListener('resize', updateZone)
+      ro?.disconnect()
+    }
+  }, [containerRef])
+
   return (
     <motion.div
       style={{ opacity, y }}
-      className="absolute inset-0 z-10 flex items-end pb-24 md:items-center md:pb-0 px-6 md:px-12 lg:px-16 pointer-events-none"
+      className="absolute inset-0 z-10 flex items-end pb-[max(1.5rem,env(safe-area-inset-bottom))] md:items-center md:pb-0 px-6 md:px-12 lg:px-16 pointer-events-none"
     >
       <motion.div
+        ref={blockRef}
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="flex flex-col max-w-xl pointer-events-auto pt-20"
+        className="flex flex-col max-w-xl justify-end pointer-events-auto"
       >
         {/* Eyebrow */}
         <motion.p
           variants={childVariants}
-          className="type-eyebrow text-metal tracking-widest mb-3 md:mb-4"
+          className="type-eyebrow text-metal tracking-widest mb-2 md:mb-4 text-xs md:text-sm"
         >
           {siteConfig.hero.eyebrow}
         </motion.p>
@@ -65,7 +106,7 @@ function HeroIntro({ scrollProgress }: { scrollProgress: MotionValue<number> }) 
         {/* H1 */}
         <motion.h1
           variants={childVariants}
-          className="type-h1 text-charcoal tracking-tight leading-[1.08]"
+          className="font-serif font-medium tracking-tight leading-[1.08] text-[clamp(1.75rem,8vw,2.25rem)] md:type-h1 text-charcoal"
         >
           <span className="block">{siteConfig.hero.headlineLine1}</span>
           <span className="block">{siteConfig.hero.headlineLine2}</span>
@@ -74,7 +115,7 @@ function HeroIntro({ scrollProgress }: { scrollProgress: MotionValue<number> }) 
         {/* Description */}
         <motion.p
           variants={childVariants}
-          className="type-body text-metal mt-4 md:mt-6 max-w-lg"
+          className="type-body text-metal mt-2.5 md:mt-6 max-w-lg text-sm md:text-base leading-snug md:leading-normal"
         >
           {siteConfig.hero.description}
         </motion.p>
@@ -82,7 +123,7 @@ function HeroIntro({ scrollProgress }: { scrollProgress: MotionValue<number> }) 
         {/* Buttons — stack on mobile */}
         <motion.div
           variants={childVariants}
-          className="mt-6 md:mt-8 flex flex-col sm:flex-row gap-4"
+          className="mt-4 md:mt-8 flex flex-col sm:flex-row gap-2.5 sm:gap-4"
         >
           <Button
             variant="primary"
@@ -136,22 +177,24 @@ function StageCaption({
   /* Alternate left/right per stage on desktop; bottom-center on mobile */
   const isRight = stageIdx % 2 === 1
   const positionClass = isRight
-    ? 'items-end text-right md:pr-16 lg:pr-24'
-    : 'items-start text-left md:pl-16 lg:pl-24'
+    ? 'items-center text-center md:items-end md:text-right md:pr-16 lg:pr-24'
+    : 'items-center text-center md:items-start md:text-left md:pl-16 lg:pl-24'
 
   return (
     <motion.div
       style={{ opacity, y }}
-      className={`absolute inset-0 z-10 flex flex-col justify-end pb-20 md:justify-center px-6 ${positionClass} pointer-events-none`}
+      className={`absolute inset-0 z-10 flex flex-col justify-end pb-[max(1.5rem,env(safe-area-inset-bottom))] md:justify-center px-6 ${positionClass} pointer-events-none`}
     >
-      <div className="max-w-sm">
-        <p className="type-eyebrow text-bronze tracking-widest mb-2">
+      <div className="max-w-sm flex flex-col justify-end">
+        <p className="type-eyebrow text-bronze tracking-widest mb-1 md:mb-2 text-xs md:text-sm">
           {String(stage.index).padStart(2, '0')}
         </p>
-        <h2 className="type-h2 text-charcoal font-serif mb-3">
+        <h2 className="type-h2 text-charcoal font-serif mb-2 md:mb-3">
           {stage.title}
         </h2>
-        <p className="type-body text-metal">{stage.text}</p>
+        <p className="type-body text-metal text-sm md:text-base leading-snug md:leading-normal">
+          {stage.text}
+        </p>
       </div>
     </motion.div>
   )
@@ -220,10 +263,12 @@ function ProgressIndicator({
 /*  Main HeroOverlay                                                  */
 /* ------------------------------------------------------------------ */
 export default function HeroOverlay({ scrollProgress }: HeroOverlayProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+
   return (
-    <div className="absolute inset-0 z-10 pointer-events-none">
+    <div ref={containerRef} className="absolute inset-0 z-10 pointer-events-none">
       {/* Stage 0: intro hero text + CTAs */}
-      <HeroIntro scrollProgress={scrollProgress} />
+      <HeroIntro scrollProgress={scrollProgress} containerRef={containerRef} />
 
       {/* Stages 1-3: scroll-anchored captions */}
       {heroStages.map((stage, idx) => (

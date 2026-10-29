@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
@@ -42,11 +42,31 @@ const CATEGORIES = [
   },
 ]
 
+const RUNWAY_VH = { desktop: 500, mobile: 400 }
+const OVERLAP_VH = 60
 const SCROLL_SPRING = { stiffness: 80, damping: 30, restDelta: 0.0001 }
 
 export default function Home() {
   const runwayRef = useRef<HTMLElement>(null)
   const navigate = useNavigate()
+
+  /* ---- Track mobile viewport with MediaQueryList ------------------ */
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 767px)')
+    setIsMobile(mql.matches)
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mql.addEventListener('change', onChange)
+    return () => mql.removeEventListener('change', onChange)
+  }, [])
+
+  const runwayVh = isMobile ? RUNWAY_VH.mobile : RUNWAY_VH.desktop
+  const endAt = (runwayVh - 100 - OVERLAP_VH) / (runwayVh - 100)
+  const endAtRef = useRef(endAt)
+  useEffect(() => {
+    endAtRef.current = endAt
+  }, [endAt])
 
   /* ---- Scroll-linked progress for the full runway ----------------- */
   const { scrollYProgress } = useScroll({
@@ -54,11 +74,10 @@ export default function Home() {
     offset: ['start start', 'end end'],
   })
 
-  const progress = useSpring(scrollYProgress, SCROLL_SPRING)
-
-  /* ---- Dissolve the sticky wrapper at the very end ---------------- */
-  const stickyOpacity = useTransform(progress, [0.92, 1], [1, 0])
-  const stickyY = useTransform(progress, [0.92, 1], [0, -30])
+  const rawChoreographyProgress = useTransform(scrollYProgress, (v) =>
+    Math.min(1, Math.max(0, v / endAtRef.current))
+  )
+  const choreographyProgress = useSpring(rawChoreographyProgress, SCROLL_SPRING)
 
   return (
     <div className="w-full bg-ivory">
@@ -67,24 +86,25 @@ export default function Home() {
       {/* ============================================================ */}
       <section
         ref={runwayRef}
-        className="relative h-[400vh] md:h-[500vh]"
+        className="relative"
+        style={{ height: `${runwayVh}vh` }}
       >
-        <motion.div
-          style={{ opacity: stickyOpacity, y: stickyY }}
-          className="sticky top-0 h-screen w-full overflow-hidden"
-        >
+        <div className="sticky top-0 h-[100svh] w-full overflow-hidden z-0">
           <ThreeDViewer
             className="z-0"
-            scrollProgress={progress}
+            scrollProgress={choreographyProgress}
           />
-          <HeroOverlay scrollProgress={progress} />
-        </motion.div>
+          <HeroOverlay scrollProgress={choreographyProgress} />
+        </div>
       </section>
 
       {/* ============================================================ */}
       {/* BRAND INTRODUCTION                                           */}
       {/* ============================================================ */}
-      <section className="relative z-10 py-[clamp(64px,10vw,120px)] px-6 md:px-12 bg-ivory border-t border-line/40">
+      <section
+        style={{ marginTop: `-${OVERLAP_VH}vh` }}
+        className="relative z-10 py-[clamp(64px,10vw,120px)] px-6 md:px-12 bg-ivory border-t border-line/40"
+      >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -6,6 +6,7 @@ import type { Group } from 'three'
 import type { MotionValue } from 'framer-motion'
 import { heroKeyframes } from '@/config/heroChoreography'
 import type { HeroKeyframe } from '@/config/heroChoreography'
+import { heroLayout } from '@/config/heroLayout'
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                         */
@@ -13,12 +14,22 @@ import type { HeroKeyframe } from '@/config/heroChoreography'
 const MAX_PARALLAX_RAD = (2 * Math.PI) / 180 // 2 degrees max
 const PARALLAX_LERP = 0.04
 const DAMP_LAMBDA = 4 // smoothing for keyframe damping
+const ZONE_FILL = 0.95
 
 /* ------------------------------------------------------------------ */
-/*  Easing helper: cubic ease-in-out                                  */
+/*  Easing and interpolation helpers                                  */
 /* ------------------------------------------------------------------ */
 function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+}
+
+function smoothstep(min: number, max: number, value: number): number {
+  const x = Math.max(0, Math.min(1, (value - min) / (max - min)))
+  return x * x * (3 - 2 * x)
+}
+
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t
 }
 
 /* ------------------------------------------------------------------ */
@@ -187,18 +198,37 @@ export default function HeroSceneContent({
 
     const isMobile = size.width < 768
 
-    // Screen-normalised conversion to world units
-    let targetX = sampled.position[0] * (viewport.width / 2)
-    let targetY = sampled.position[1] * (viewport.height / 2)
-    let targetZ = sampled.position[2]
-    let targetScale = fitSize * sampled.scale
+    const target = {
+      x: sampled.position[0],
+      y: sampled.position[1],
+      z: sampled.position[2],
+      scale: sampled.scale,
+    }
 
     if (isMobile) {
-      targetX *= 0.25
-      targetY += 0.18 * (viewport.height / 2)
-      targetZ *= 0.5
-      targetScale *= 0.85
+      target.x *= 0.25
+      target.y += 0.18
+      target.z *= 0.5
+      target.scale *= 0.85
+
+      const zoneH = heroLayout.zoneBottom - heroLayout.zoneTop
+      if (zoneH > 40) {
+        const centerPx = (heroLayout.zoneTop + heroLayout.zoneBottom) / 2
+        const zoneY = 1 - (2 * centerPx) / size.height // normalised y of the zone centre
+        const diameterPx = Math.min(zoneH * ZONE_FILL, size.width * 0.92)
+        const zoneScale = (diameterPx / size.height) * (viewport.height / fitSize)
+        const w = 1 - smoothstep(0.15, 0.30, progress) // 1 until 15% progress, blends to 0 by 30%
+        target.x = lerp(target.x, 0, w)
+        target.y = lerp(target.y, zoneY, w)
+        target.scale = lerp(target.scale, zoneScale, w)
+      }
     }
+
+    // Screen-normalised conversion to world units
+    const targetX = target.x * (viewport.width / 2)
+    const targetY = target.y * (viewport.height / 2)
+    const targetZ = target.z
+    const targetScale = fitSize * target.scale
 
     /* Damp position toward targets */
     groupRef.current.position.x = THREE.MathUtils.damp(
