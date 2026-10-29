@@ -66,6 +66,7 @@ const heroChildVariants = {
 }
 
 const SPRING_CONFIG = { stiffness: 100, damping: 25, restDelta: 0.001 }
+const SCROLL_SPRING_CONFIG = { stiffness: 100, damping: 30, restDelta: 0.001 }
 
 export default function Home() {
   const heroRef = useRef<HTMLElement>(null)
@@ -79,7 +80,8 @@ export default function Home() {
 
   const textOpacityRaw = useTransform(scrollYProgress, [0, 0.85], [1, 0])
   const viewerScaleRaw = useTransform(scrollYProgress, [0, 1], [1, 0.92])
-  const heroScrollProgress = useTransform(scrollYProgress, [0, 0.25, 1], [0, 1, 1])
+  const heroScrollProgressRaw = useTransform(scrollYProgress, [0, 0.25, 1], [0, 1, 1])
+  const heroScrollProgress = useSpring(heroScrollProgressRaw, SCROLL_SPRING_CONFIG)
 
   const textOpacity = useSpring(textOpacityRaw, SPRING_CONFIG)
   const viewerScale = useSpring(viewerScaleRaw, SPRING_CONFIG)
