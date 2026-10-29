@@ -1,4 +1,4 @@
-import { Suspense, useSyncExternalStore, useMemo } from 'react'
+import { Suspense, useSyncExternalStore, useMemo, useRef, useState, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Environment, Html } from '@react-three/drei'
 import type { MotionValue } from 'framer-motion'
@@ -93,33 +93,52 @@ function LoadingIndicator() {
 /* ------------------------------------------------------------------ */
 interface ThreeDViewerProps {
   scrollProgress?: MotionValue<number>
+  className?: string
 }
 
-export default function ThreeDViewer({ scrollProgress }: ThreeDViewerProps) {
+export default function ThreeDViewer({ scrollProgress, className }: ThreeDViewerProps) {
   const reducedMotion = useReducedMotion()
   const isMobile = useIsMobile()
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(true)
 
   const dpr: [number, number] = useMemo(
     () => (isMobile ? [1, 1.5] : [1, 2]),
     [isMobile]
   )
 
+  /* Pause the render loop when off-screen to save GPU */
+  useEffect(() => {
+    const el = wrapperRef.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: 0 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <Canvas
-      dpr={dpr}
-      gl={{ antialias: true }}
-      camera={{ position: [2.5, 1, 4], fov: 40 }}
-      onCreated={({ camera }) => camera.lookAt(0, 0, 0)}
-    >
-      <Suspense fallback={<LoadingIndicator />}>
-        <Environment preset="studio" />
-        <ambientLight intensity={0.3} />
-        <directionalLight position={[5, 5, 5]} intensity={0.8} />
-        <HeroSceneContent
-          reducedMotion={reducedMotion}
-          scrollProgress={scrollProgress}
-        />
-      </Suspense>
-    </Canvas>
+    <div ref={wrapperRef} className={className} style={{ width: '100%', height: '100%' }}>
+      <Canvas
+        dpr={dpr}
+        gl={{ antialias: true }}
+        camera={{ position: [2.5, 1, 4], fov: 40 }}
+        onCreated={({ camera }) => camera.lookAt(0, 0, 0)}
+        frameloop={isVisible ? 'always' : 'never'}
+      >
+        <Suspense fallback={<LoadingIndicator />}>
+          <Environment preset="studio" />
+          <ambientLight intensity={0.3} />
+          <directionalLight position={[5, 5, 5]} intensity={0.8} />
+          <HeroSceneContent
+            reducedMotion={reducedMotion}
+            scrollProgress={scrollProgress}
+          />
+        </Suspense>
+      </Canvas>
+    </div>
   )
 }
